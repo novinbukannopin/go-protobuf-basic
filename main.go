@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"protobuf/pb/user"
@@ -26,6 +27,8 @@ func main() {
 	serv := grpc.NewServer()
 
 	user.RegisterUserServiceServer(serv, &userService{})
+
+	reflection.Register(serv)
 
 	if err := serv.Serve(lis); err != nil {
 		log.Fatal("Error serving:", err)
