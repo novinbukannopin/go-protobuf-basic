@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "protobuf/pb;chat";
+
+service ChatService {
+  // client streaming
+  rpc SendMessage (stream ChatMessage) returns (ChatResponse);
+  // server streaming
+  rpc ReceiveMessages (ReceiveMessageRequest) returns (stream ChatMessage);
+  // bidirectional
+  rpc Chat(stream ChatMessage) returns (stream ChatMessage);
+}
+
+message ChatMessage {
+  int64 user_id = 1;
+  string content = 2;
+}
+
+message ChatResponse {
+  string message = 1;
+}
+
+message ReceiveMessageRequest {
+  int64 user_id = 1;
+}
