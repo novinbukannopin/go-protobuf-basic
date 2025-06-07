@@ -45,6 +45,23 @@ func (cs *chatService) SendMessage(stream grpc.ClientStreamingServer[chat.ChatMe
 	})
 }
 
+func (cs *chatService) ReceiveMessages(req *chat.ReceiveMessageRequest, stream grpc.ServerStreamingServer[chat.ChatMessage]) error {
+	log.Printf("Received request to receive messages from user: %s", req.UserId)
+
+	for i := 0; i < 5; i++ {
+		err := stream.Send(&chat.ChatMessage{
+			UserId:  req.UserId,
+			Content: "Message " + string(rune(i+1)),
+		})
+
+		if err != nil {
+			return status.Errorf(codes.Unknown, "cannot send message: %v", err)
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {

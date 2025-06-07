@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"io"
 	"log"
 	"protobuf/pb/chat"
 )
@@ -35,32 +37,47 @@ func main() {
 	//log.Println("User created successfully", response.Message)
 
 	chatClient := chat.NewChatServiceClient(conn)
-	stream, err := chatClient.SendMessage(context.Background())
+	stream, err := chatClient.ReceiveMessages(context.Background(), &chat.ReceiveMessageRequest{
+		UserId: 1,
+	})
+
 	if err != nil {
 		log.Fatal("Error creating chat stream:", err)
 	}
 
-	err = stream.Send(&chat.ChatMessage{
-		UserId:  1,
-		Content: "hello world",
-	})
-
-	if err != nil {
-		log.Fatal("Error sending message:", err)
+	for {
+		msg, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				log.Println("No more messages from server")
+				break
+			}
+			log.Fatal("Error receiving message:", err)
+		}
+		log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
 	}
 
-	err = stream.Send(&chat.ChatMessage{
-		UserId:  2,
-		Content: "hello golang",
-	})
-
-	if err != nil {
-		log.Fatal("Error sending message:", err)
-	}
-
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		log.Fatal("Error receiving response:", err)
-	}
-	log.Println("Connected to chat service successfully", res.Message)
+	//err = stream.Send(&chat.ChatMessage{
+	//	UserId:  1,
+	//	Content: "hello world",
+	//})
+	//
+	//if err != nil {
+	//	log.Fatal("Error sending message:", err)
+	//}
+	//
+	//err = stream.Send(&chat.ChatMessage{
+	//	UserId:  2,
+	//	Content: "hello golang",
+	//})
+	//
+	//if err != nil {
+	//	log.Fatal("Error sending message:", err)
+	//}
+	//
+	//res, err := stream.CloseAndRecv()
+	//if err != nil {
+	//	log.Fatal("Error receiving response:", err)
+	//}
+	//log.Println("Connected to chat service successfully", res.Message)
 }
