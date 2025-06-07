@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"io"
 	"log"
 	"protobuf/pb/chat"
 )
@@ -37,25 +35,54 @@ func main() {
 	//log.Println("User created successfully", response.Message)
 
 	chatClient := chat.NewChatServiceClient(conn)
-	stream, err := chatClient.ReceiveMessages(context.Background(), &chat.ReceiveMessageRequest{
-		UserId: 1,
-	})
-
+	stream, err := chatClient.Chat(context.Background())
 	if err != nil {
 		log.Fatal("Error creating chat stream:", err)
 	}
 
-	for {
-		msg, err := stream.Recv()
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				log.Println("No more messages from server")
-				break
-			}
-			log.Fatal("Error receiving message:", err)
-		}
-		log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+	err = stream.Send(&chat.ChatMessage{
+		UserId:  1,
+		Content: "Hello this is client",
+	})
+
+	if err != nil {
+		log.Fatal("Error sending message:", err)
 	}
+
+	msg, err := stream.Recv()
+
+	if err != nil {
+		log.Fatal("Error receiving message:", err)
+	}
+
+	log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+
+	err = stream.Send(&chat.ChatMessage{
+		UserId:  2,
+		Content: "Hello this is client agaoin",
+	})
+	if err != nil {
+		log.Fatal("Error sending message:", err)
+	}
+
+	msg, err = stream.Recv()
+	if err != nil {
+		log.Fatal("Error receiving message:", err)
+	}
+
+	log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+
+	//for {
+	//	msg, err := stream.Recv()
+	//	if err != nil {
+	//		if errors.Is(err, io.EOF) {
+	//			log.Println("No more messages from server")
+	//			break
+	//		}
+	//		log.Fatal("Error receiving message:", err)
+	//	}
+	//	log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+	//}
 
 	//err = stream.Send(&chat.ChatMessage{
 	//	UserId:  1,

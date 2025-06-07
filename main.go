@@ -62,6 +62,30 @@ func (cs *chatService) ReceiveMessages(req *chat.ReceiveMessageRequest, stream g
 	return nil
 }
 
+func (cs *chatService) Chat(stream grpc.BidiStreamingServer[chat.ChatMessage, chat.ChatMessage]) error {
+	for {
+		msg, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				log.Println("Client has finished sending messages")
+				break
+			}
+			return status.Errorf(codes.Unknown, "cannot receive a message: %v", err)
+		}
+		log.Printf("Received message from user %d: %s", msg.UserId, msg.Content)
+
+		err = stream.Send(&chat.ChatMessage{
+			UserId:  msg.UserId,
+			Content: "reply to server",
+		})
+		if err != nil {
+			return status.Errorf(codes.Unknown, "cannot send a message: %v", err)
+		}
+	}
+
+	return nil
+}
+
 func main() {
 	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {
