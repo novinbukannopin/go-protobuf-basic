@@ -4,6 +4,8 @@ package user;
 
 option go_package = "protobuf/pb;user";
 
+import "common/base_response.proto";
+
 service UserService {
   rpc CreateUser (User) returns (CreateResponse);
 }
@@ -27,6 +29,5 @@ message Address {
 }
 
 message CreateResponse {
-  string message = 1;
-  User user = 2;
+  common.BaseResponse base_response = 1;
 }

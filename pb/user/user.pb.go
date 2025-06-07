@@ -9,6 +9,7 @@ package user
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	common "protobuf/pb/common"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -191,8 +192,7 @@ func (x *Address) GetCity() string {
 
 type CreateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	User          *User                  `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`
+	BaseResponse  *common.BaseResponse   `protobuf:"bytes,1,opt,name=base_response,json=baseResponse,proto3" json:"base_response,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -227,16 +227,9 @@ func (*CreateResponse) Descriptor() ([]byte, []int) {
 	return file_user_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CreateResponse) GetMessage() string {
+func (x *CreateResponse) GetBaseResponse() *common.BaseResponse {
 	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *CreateResponse) GetUser() *User {
-	if x != nil {
-		return x.User
+		return x.BaseResponse
 	}
 	return nil
 }
@@ -245,7 +238,7 @@ var File_user_user_proto protoreflect.FileDescriptor
 
 const file_user_user_proto_rawDesc = "" +
 	"\n" +
-	"\x0fuser/user.proto\x12\x04user\"\xe6\x01\n" +
+	"\x0fuser/user.proto\x12\x04user\x1a\x1acommon/base_response.proto\"\xe6\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
 	"\tfull_name\x18\x02 \x01(\tR\bfullName\x12\x10\n" +
@@ -262,11 +255,9 @@ const file_user_user_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\ffull_address\x18\x02 \x01(\tR\vfullAddress\x12\x1a\n" +
 	"\bprovince\x18\x03 \x01(\tR\bprovince\x12\x12\n" +
-	"\x04city\x18\x04 \x01(\tR\x04city\"J\n" +
-	"\x0eCreateResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\x12\x1e\n" +
-	"\x04user\x18\x02 \x01(\v2\n" +
-	".user.UserR\x04user2=\n" +
+	"\x04city\x18\x04 \x01(\tR\x04city\"K\n" +
+	"\x0eCreateResponse\x129\n" +
+	"\rbase_response\x18\x01 \x01(\v2\x14.common.BaseResponseR\fbaseResponse2=\n" +
 	"\vUserService\x12.\n" +
 	"\n" +
 	"CreateUser\x12\n" +
@@ -286,13 +277,14 @@ func file_user_user_proto_rawDescGZIP() []byte {
 
 var file_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_user_user_proto_goTypes = []any{
-	(*User)(nil),           // 0: user.User
-	(*Address)(nil),        // 1: user.Address
-	(*CreateResponse)(nil), // 2: user.CreateResponse
+	(*User)(nil),                // 0: user.User
+	(*Address)(nil),             // 1: user.Address
+	(*CreateResponse)(nil),      // 2: user.CreateResponse
+	(*common.BaseResponse)(nil), // 3: common.BaseResponse
 }
 var file_user_user_proto_depIdxs = []int32{
 	1, // 0: user.User.address:type_name -> user.Address
-	0, // 1: user.CreateResponse.user:type_name -> user.User
+	3, // 1: user.CreateResponse.base_response:type_name -> common.BaseResponse
 	0, // 2: user.UserService.CreateUser:input_type -> user.User
 	2, // 3: user.UserService.CreateUser:output_type -> user.CreateResponse
 	3, // [3:4] is the sub-list for method output_type

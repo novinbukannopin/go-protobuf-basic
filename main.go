@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"protobuf/pb/chat"
+	"protobuf/pb/common"
 	"protobuf/pb/user"
 )
 
@@ -19,8 +20,34 @@ type userService struct {
 }
 
 func (us *userService) CreateUser(ctx context.Context, userRequest *user.User) (*user.CreateResponse, error) {
-	log.Printf("Received request to create user: %s", userRequest.FullName)
-	return &user.CreateResponse{Message: "User created successfully"}, nil
+
+	if userRequest.Age < 1 {
+		return &user.CreateResponse{
+			BaseResponse: &common.BaseResponse{
+				StatusCode: 400,
+				IsSuccess:  false,
+				Message:    "Bad Request",
+				ValidationErrors: []*common.ValidationError{
+					{
+						Field:   "age",
+						Message: "Age must be greater than 0",
+					},
+					{
+						Field:   "full_name",
+						Message: "Full name is required",
+					},
+				},
+			},
+		}, nil
+	}
+
+	return &user.CreateResponse{
+		BaseResponse: &common.BaseResponse{
+			StatusCode: 200,
+			IsSuccess:  true,
+			Message:    "User created successfully",
+		},
+	}, nil
 }
 
 type chatService struct {
